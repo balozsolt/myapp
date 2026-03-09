@@ -1,0 +1,24 @@
+/* App.css — root layout styles */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #0f1117;
+  color: #f1f5f9;
+  font-family: 'Syne', sans-serif;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+}

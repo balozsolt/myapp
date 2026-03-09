@@ -1,0 +1,558 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+
+.all-items {
+  padding: 36px 40px;
+  min-height: 100vh;
+  background: #0f1117;
+  color: #e8eaf0;
+  font-family: 'Syne', sans-serif;
+}
+
+.all-items-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.all-items-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.all-items-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.checking-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 3px 10px;
+  border-radius: 20px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── Add button ─────────────────────────────────────────────────────────────── */
+
+.add-btn {
+  background: #60a5fa;
+  color: #0f1117;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.add-btn:hover {
+  background: #93c5fd;
+}
+
+.add-btn:active {
+  transform: scale(0.97);
+}
+
+/* ── Table ──────────────────────────────────────────────────────────────────── */
+
+.table-wrapper {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  overflow-x: auto;
+  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.4);
+}
+
+.password-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  table-layout: auto;
+}
+
+.password-table thead tr {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.password-table th {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.password-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: #13161f;
+  transition: background 0.15s ease;
+}
+
+.password-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.password-table tbody tr:hover {
+  background: #1a1e2a;
+}
+
+.password-table tbody tr.row-breached {
+  background: rgba(239, 68, 68, 0.05);
+  border-left: 3px solid rgba(239, 68, 68, 0.6);
+}
+
+.password-table tbody tr.row-breached:hover {
+  background: rgba(239, 68, 68, 0.09);
+}
+
+.password-table td {
+  padding: 14px 20px;
+  vertical-align: middle;
+  color: #c9cdd8;
+  white-space: nowrap;
+}
+
+/* ── App name cell ──────────────────────────────────────────────────────────── */
+
+.app-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.app-avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+/* ── URL link ───────────────────────────────────────────────────────────────── */
+
+.url-link {
+  color: #60a5fa;
+  text-decoration: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.url-link:hover {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+
+/* ── Field cells ────────────────────────────────────────────────────────────── */
+
+.field-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  color: #d1d5db;
+  white-space: nowrap;
+}
+
+.password-value {
+  letter-spacing: 0.05em;
+  min-width: 100px;
+}
+
+/* ── Status badges ──────────────────────────────────────────────────────────── */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.status-badge.breached {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.status-badge.safe {
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.25);
+}
+
+.status-badge.checking {
+  background: rgba(148, 163, 184, 0.08);
+  color: #64748b;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  animation: pulse 1.2s ease-in-out infinite;
+  letter-spacing: 3px;
+}
+
+/* ── Icon buttons ───────────────────────────────────────────────────────────── */
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e8eaf0;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.icon-btn.copied {
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.3);
+  color: #4ade80;
+}
+
+/* ── Action column ──────────────────────────────────────────────────────────── */
+
+.action-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.edit-btn {
+  background: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.25);
+}
+
+.edit-btn:hover {
+  background: rgba(96, 165, 250, 0.2);
+}
+
+.delete-btn {
+  background: rgba(248, 113, 113, 0.08);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.2);
+}
+
+.delete-btn:hover {
+  background: rgba(248, 113, 113, 0.18);
+}
+
+/* Delete confirmation inline */
+.delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.delete-confirm-text {
+  font-size: 0.78rem;
+  color: #f87171;
+  font-weight: 600;
+}
+
+.confirm-yes-btn {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+.confirm-yes-btn:hover {
+  background: rgba(248, 113, 113, 0.35);
+}
+
+.confirm-no-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.confirm-no-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Slide-in panel ─────────────────────────────────────────────────────────── */
+
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  backdrop-filter: blur(2px);
+}
+
+.side-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 420px;
+  max-width: 100vw;
+  background: #13161f;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 101;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.5);
+}
+
+.side-panel.side-panel-open {
+  transform: translateX(0);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 32px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.panel-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.panel-close {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.panel-close:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.panel-form {
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.panel-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.panel-input {
+  background: #0f1117;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.88rem;
+  color: #f1f5f9;
+  outline: none;
+  transition: border-color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.panel-input::placeholder {
+  color: #334155;
+}
+
+.panel-input:focus {
+  border-color: #60a5fa;
+}
+
+.panel-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.panel-password-input {
+  padding-right: 44px;
+}
+
+.panel-eye-btn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.panel-eye-btn:hover {
+  color: #f1f5f9;
+}
+
+.panel-error {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.82rem;
+  color: #f87171;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.panel-cancel {
+  flex: 1;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 11px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.panel-cancel:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+}
+
+.panel-save {
+  flex: 2;
+  background: #60a5fa;
+  border: none;
+  border-radius: 8px;
+  padding: 11px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f1117;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.panel-save:hover:not(:disabled) {
+  background: #93c5fd;
+}
+
+.panel-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Error state ────────────────────────────────────────────────────────────── */
+
+.error-box {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  padding: 16px 20px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-family: 'IBM Plex Mono', monospace;
+}
