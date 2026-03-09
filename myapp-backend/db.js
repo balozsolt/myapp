@@ -4,17 +4,25 @@
 // A connection pool is used instead of a single connection — this means multiple
 // requests can query the database simultaneously without waiting for each other.
 //
-// Connection details match the docker-compose.yml configuration.
+// Railway provides a DATABASE_URL connection string in production.
+// Locally we fall back to individual connection parameters matching docker-compose.yml.
 
 const { Pool } = require("pg");
 
-const pool = new Pool({
-  host:     process.env.DB_HOST     || "localhost",
-  port:     process.env.DB_PORT     || 5432,
-  user:     process.env.DB_USER     || "myapp",
-  password: process.env.DB_PASSWORD || "myapp123",
-  database: process.env.DB_NAME     || "myapp_vault",
-});
+// Railway provides DATABASE_URL automatically when a PostgreSQL service is linked.
+// SSL is required by Railway — rejectUnauthorized: false allows self-signed certs.
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+    })
+  : new Pool({
+      host:     process.env.DB_HOST     || "localhost",
+      port:     process.env.DB_PORT     || 5432,
+      user:     process.env.DB_USER     || "myapp",
+      password: process.env.DB_PASSWORD || "myapp123",
+      database: process.env.DB_NAME     || "myapp_vault",
+    });
 
 // Test the connection on startup
 pool.connect((err, client, release) => {
@@ -27,10 +35,9 @@ pool.connect((err, client, release) => {
   initialiseDatabase();
 });
 
-// Create tables and seed data if needed
+// Create tables if they don't exist
 async function initialiseDatabase() {
   try {
-    // Create passwords table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS passwords (
         id          SERIAL PRIMARY KEY,
@@ -43,7 +50,6 @@ async function initialiseDatabase() {
       )
     `);
 
-    // Create users table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id            SERIAL PRIMARY KEY,

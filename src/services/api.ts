@@ -1,7 +1,7 @@
 // services/api.ts — All HTTP calls to the backend
 // Automatically attaches the JWT token from localStorage to every request.
 
-const BASE_URL = "http://localhost:3001/api";
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 export interface PasswordEntry {
   id: number;
@@ -32,7 +32,7 @@ function handleUnauthorized(status: number): void {
 }
 
 export async function fetchPasswords(): Promise<PasswordEntry[]> {
-  const res = await fetch(`${BASE_URL}/passwords`, {
+  const res = await fetch(`${API_BASE}/api/passwords`, {
     headers: getHeaders(),
   });
   handleUnauthorized(res.status);
@@ -43,7 +43,7 @@ export async function fetchPasswords(): Promise<PasswordEntry[]> {
 export async function createPassword(
   data: Omit<PasswordEntry, "id" | "createdAt" | "updatedAt">
 ): Promise<PasswordEntry> {
-  const res = await fetch(`${BASE_URL}/passwords`, {
+  const res = await fetch(`${API_BASE}/api/passwords`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify(data),
@@ -57,7 +57,7 @@ export async function updatePassword(
   id: number,
   data: Omit<PasswordEntry, "id" | "createdAt" | "updatedAt">
 ): Promise<PasswordEntry> {
-  const res = await fetch(`${BASE_URL}/passwords/${id}`, {
+  const res = await fetch(`${API_BASE}/api/passwords/${id}`, {
     method: "PUT",
     headers: getHeaders(),
     body: JSON.stringify(data),
@@ -68,7 +68,7 @@ export async function updatePassword(
 }
 
 export async function deletePassword(id: number): Promise<void> {
-  const res = await fetch(`${BASE_URL}/passwords/${id}`, {
+  const res = await fetch(`${API_BASE}/api/passwords/${id}`, {
     method: "DELETE",
     headers: getHeaders(),
   });
