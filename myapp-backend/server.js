@@ -3,10 +3,25 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
-app.use(cors({ origin: "http://localhost:3000" }));
+// ─── CORS ─────────────────────────────────────────────────────────────────────
+// Allow requests from local development and the production Vercel frontend.
+// In production, ALLOWED_ORIGIN is set as an environment variable in Railway.
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.ALLOWED_ORIGIN,
+].filter(Boolean); // remove undefined if ALLOWED_ORIGIN is not set
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. Postman, curl, health checks)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  }
+}));
+
 app.use(express.json());
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
