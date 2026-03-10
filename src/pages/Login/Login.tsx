@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -9,15 +11,13 @@ const Login: React.FC = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // If already logged in, skip straight to the app
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) navigate("/", { replace: true });
   }, [navigate]);
 
-  // If no account exists yet, send to register
   useEffect(() => {
-    fetch("http://localhost:3001/api/auth/status")
+    fetch(`${API_BASE}/api/auth/status`)
       .then((res) => res.json())
       .then((data) => {
         if (!data.hasAccount) navigate("/register", { replace: true });
@@ -34,7 +34,7 @@ const Login: React.FC = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/api/auth/login", {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

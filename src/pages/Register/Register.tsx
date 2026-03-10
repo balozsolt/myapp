@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Register.css";
 
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -10,9 +12,8 @@ const Register: React.FC = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // If an account already exists, redirect straight to login
   useEffect(() => {
-    fetch("http://localhost:3001/api/auth/status")
+    fetch(`${API_BASE}/api/auth/status`)
       .then((res) => res.json())
       .then((data) => {
         if (data.hasAccount) navigate("/login", { replace: true });
@@ -35,7 +36,7 @@ const Register: React.FC = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/api/auth/register", {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
