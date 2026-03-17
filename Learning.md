@@ -164,3 +164,205 @@ npm install downloads all packages listed in package.json into node_modules. You
 
 ## Controlled forms in React 
 In React each input's value is bound to a state variable and updates via onChange. This means React always owns the form data, making it easy to pre-fill fields (like the Edit panel) or reset them programmatically when the panel opens.
+
+## AES-256-GCM — a symmetric encryption algorithm. 
+"Symmetric" means the same key encrypts and decrypts. "GCM" (Galois/Counter Mode) adds authentication — it can detect if the ciphertext was tampered with. The stored format is iv:authTag:ciphertext where IV is a random value generated fresh for every encryption operation.
+
+## Why a fresh IV every time?
+ Encrypting the same password twice produces different ciphertext each time because of the random IV. This prevents attackers from noticing that two entries share the same password.Why the key is in the JWT and not the DB — storing the encryption key in the same database as the encrypted data would be like leaving the key under the doormat. The JWT carries the key in memory only, derived fresh at every login from the master password.
+
+## Deployment, Infrastructure & DevOps Concepts
+
+---
+
+### The Big Picture — How Everything Connects
+
+```
+Your Code (laptop)
+      ↓  git push
+GitHub (source of truth)
+      ↓  auto-deploy trigger
+   ┌──┴──┐
+Vercel  Railway
+(frontend) (backend + DB)
+      ↓        ↓
+   Browser → API calls
+```
+
+Your laptop is only for development. Once code is pushed to GitHub, everything runs in the cloud automatically. You never manually copy files to a server.
+
+---
+
+### Docker
+
+Docker lets you run software inside isolated containers without installing it directly on Windows. Think of a container like a lightweight virtual machine that contains everything the software needs to run. You start it with one command, stop it with one command, and it never interferes with anything else on your computer.
+
+**docker-compose** is a tool that lets you define and run one or more containers using a single `docker-compose.yml` config file. Instead of remembering a long `docker run` command with all its options, you just run `docker-compose up -d` and it handles everything. The `-d` flag means "detached" — runs in the background so your terminal stays free.
+
+**Volumes** are persistent storage attached to containers. Containers themselves are ephemeral — when you destroy one, all data inside is lost. Volumes survive container restarts and laptop reboots. `docker-compose down` stops the container but keeps the volume. `docker-compose down -v` is a deliberate nuclear option that destroys both — only use it when you want to wipe everything (like when we needed to clear plaintext passwords before adding encryption). In production on Railway, the database is a fully hosted service with its own persistent storage — you would have to deliberately delete the Railway PostgreSQL service to lose data.
+
+---
+
+### Environment Variables
+
+Key-value pairs that configure your app differently depending on where it runs. The same code runs in three places — your laptop, Railway, Vercel — and each needs different configuration:
+
+```
+Laptop:   API_URL = http://localhost:3001
+Vercel:   API_URL = https://myapp-backend-production-e91a.up.railway.app
+Railway:  DATABASE_URL = postgresql://postgres:xxx@postgres.railway.internal/railway
+```
+
+**The .env file family:**
+- `.env` — local defaults, never committed to git (contains secrets)
+- `.env.production` — production values, safe to commit if no secrets
+- `.env.local` — personal overrides, never committed
+
+**Why React env vars are special:** Node.js reads `process.env` at runtime. React reads it at build time — Webpack replaces `process.env.REACT_APP_API_URL` with the actual value when `npm run build` runs. After that the value is baked into the JS bundle forever. This is why redeploying Vercel is required every time the variable changes — and why Login.tsx was still calling localhost:3001 even after the variable was set correctly in the Vercel dashboard.
+
+**Only `REACT_APP_` prefixed variables work in React.** This is a Create React App security feature — it prevents accidentally exposing server-side secrets to the browser.
+
+---
+
+### CORS (Cross-Origin Resource Sharing)
+
+A browser security mechanism that blocks requests from one domain to another unless the server explicitly allows it. It is NOT about encryption — that is handled by SSL/TLS (the S in HTTPS).
+
+**SSL/TLS vs CORS:**
+- SSL/TLS = encryption — makes data unreadable in transit (the locked door)
+- CORS = access control — decides which websites can talk to your API (the bouncer checking the guest list)
+Both are needed and solve different problems.
+
+**How CORS works in our app:**
+```
+Browser on myapp-tau-tan.vercel.app
+  → sends request to myapp-backend-production-e91a.up.railway.app
+  → browser first checks: does the server allow this origin?
+  → server responds with Access-Control-Allow-Origin header
+  → if origin matches → request goes through
+  → if origin doesn't match → browser blocks it (CORS error)
+```
+
+Note: CORS is enforced by the browser, not the server. Tools like Postman and curl are not browsers and ignore CORS entirely — this is why API calls work in Postman but fail in the browser.
+
+---
+
+### Vercel (Frontend Hosting)
+
+Takes your React source code, runs `npm run build`, and serves the resulting static files (HTML, CSS, JS) globally via CDN (Content Delivery Network — a network of servers around the world so users get files from the nearest server).
+
+**How deployment works:**
+1. You push to GitHub
+2. Vercel detects the push via a webhook
+3. Vercel clones your repo and runs `npm run build`
+4. Environment variables are injected during the build
+5. Built files are distributed to the CDN
+6. Your URL now serves the new version
+
+**Why the bundle hash matters:** React builds produce files like `main.54b9a70e.js` — the hash changes when content changes. This forces browsers to download the new version instead of using a cached old one.
+
+---
+
+### Railway (Backend Hosting)
+
+Runs your Node.js server as a container in the cloud 24/7, and provides managed PostgreSQL.
+
+**How deployment works:**
+1. You push to GitHub
+2. Railway detects the push
+3. Railway builds a Docker image from your code using Railpack
+4. The container starts and runs `npm start`
+5. Railway exposes it at your public URL
+
+**Internal vs public URLs:**
+- `myapp-backend.railway.internal` — only accessible from inside Railway's network
+- `myapp-backend-production-e91a.up.railway.app` — publicly accessible from anywhere
+
+**The port rule:** Railway dynamically assigns a port via `process.env.PORT`. Your app must listen on that port with `const PORT = process.env.PORT || 3001`. Railway's networking then forwards public traffic to that port. Mismatch = 502 Bad Gateway on every request.
+
+**DATABASE_URL:** Railway automatically injects this when you link a PostgreSQL service. It contains host, port, username, password, and database name in one string. Our db.js checks for this first before falling back to individual local variables.
+
+**Free tier cold starts:** Railway's free tier spins down after inactivity and takes ~30 seconds to wake up on the first request. This is normal behaviour on free hosting.
+
+---
+
+### Production Debugging — Why It Takes Time
+
+Production has multiple layers that all need to be correct simultaneously:
+
+```
+1. Code is correct locally
+2. Code is committed to git
+3. Code is pushed to GitHub
+4. CI/CD picks up the push
+5. Build succeeds
+6. Environment variables are set
+7. Environment variables are injected at build time
+8. Server starts correctly
+9. Server listens on the right port
+10. CORS allows the right origins
+```
+
+If any one of these fails, the app doesn't work. In our deployment session we had issues at steps 6, 7, 9, and 10 — all at the same time. Each fix revealed the next problem underneath. This is completely normal. The difference between a junior and senior developer is pattern recognition — knowing which layer to check first.
+
+**Lessons from our specific bugs:**
+- Hardcoded localhost URLs in Login.tsx and Register.tsx bypassed the env variable in api.ts entirely
+- The CORS fix in server.js was never pushed to GitHub so Railway kept running old code
+- node_modules committed to git caused Railway to deploy Windows binaries on Linux — always add node_modules/ to .gitignore
+- Railway's port setting was 3001 but the app listened on 8080 (process.env.PORT) — causing 502 on every request
+
+---
+
+### git rm --cached
+
+Once a file is tracked by git, adding it to .gitignore does not stop tracking it. You need `git rm --cached <file>` to tell git "stop tracking this file" without deleting it from disk. This is what we used to remove node_modules from git tracking after it was accidentally committed.
+
+## CI/CD and GitHub Actions
+
+### What is CI (Continuous Integration)?
+CI is the practice of automatically running tests every time code is pushed to a shared repository. The goal is to catch broken code before it reaches the main branch. In our setup, GitHub Actions runs `npm test` on every push and pull request.
+
+### What is CD (Continuous Deployment)?
+CD is the automatic deployment of code once it passes CI. In our setup, Vercel and Railway both watch the main branch — when a commit lands there, they deploy automatically. CI and CD together form a pipeline: test → merge → deploy, all without manual steps.
+
+### What is GitHub Actions?
+GitHub's built-in CI/CD platform. You define workflows in YAML files inside `.github/workflows/`. Each workflow has triggers (on push, on PR), jobs (groups of steps), and steps (individual commands). Workflows run in GitHub's cloud — no server needed.
+
+### What is branch protection?
+A GitHub setting that enforces rules before code can merge to a branch. In our case, the "Run tests" CI job must pass before any PR can merge to main. Without this, CI results are just informational — the merge button works regardless. With branch protection, broken code is physically blocked from reaching production.
+
+### Why CI effectively protects CD too
+In our setup, Railway and Vercel don't run tests themselves — they just deploy whatever lands on main. The protection comes from CI blocking bad merges:
+```
+broken code → CI fails → merge blocked → main unchanged → no deploy triggered
+```
+This means CI is the real gate for both integration AND deployment.
+
+---
+
+## AI / LLM Integration Concepts
+
+### What is a system prompt?
+A system prompt is an instruction given to an LLM before the user's first message. It sets the AI's role, constraints, and tone for the entire conversation. In our app, the system prompt tells the AI it's a security advisor, provides the account context (app name, URL, username), and instructs it to never ask for or reference the actual password. This is a core prompt engineering technique.
+
+### What is prompt engineering?
+The practice of designing inputs to an LLM to reliably produce the desired output. Key techniques include: defining a clear role in the system prompt, injecting relevant context, constraining scope ("only answer security questions"), and controlling output format ("keep responses to 3-5 sentences"). This is the same work that AI agent teams do professionally — the scale and complexity differ, but the concepts are identical.
+
+### What is an AI agent?
+An AI agent is an LLM with access to tools (APIs, databases, search engines) that it can call to complete a task. Our implementation is a simple single-turn advisor — one question, one answer. A full agent would maintain conversation history, decide which tools to call, and chain multiple LLM calls together to complete complex tasks.
+
+### Why the API key lives on the backend
+If the Groq API key were included in the React frontend, it would be visible in the browser's source code to anyone who inspects the page. By routing all AI calls through the backend (`POST /api/ai/advise`), the key stays server-side only. This is the correct pattern for any third-party API key.
+
+### What context do we pass to the AI — and what we don't
+We pass: appName, url, username — enough for the AI to give relevant advice.
+We never pass: the actual password. Sending vault passwords to a third-party API would be a serious security breach. The system prompt also explicitly instructs the AI never to ask for it.
+
+### OpenAI-compatible API format
+Most modern LLM APIs (Groq, OpenAI, many others) use the same request/response format:
+- Request: `{ model, messages: [{role: "system", content: "..."}, {role: "user", content: "..."}] }`
+- Response: `data.choices[0].message.content`
+Learning this format once means you can switch between providers by changing the URL and model name only.
+
+### What is Groq?
+Groq is an AI infrastructure company that runs open source models (like Meta's LLaMA) at very high speed using custom hardware. Their free tier provides access to LLaMA 3.3 70B — a capable open source model. The API is OpenAI-compatible, making it easy to integrate.
