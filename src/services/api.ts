@@ -75,3 +75,21 @@ export async function deletePassword(id: number): Promise<void> {
   handleUnauthorized(res.status);
   if (!res.ok) throw new Error("Failed to delete password");
 }
+
+export interface AIContext {
+  appName: string;
+  url: string;
+  username: string;
+}
+
+export async function askAI(question: string, context: AIContext): Promise<string> {
+  const res = await fetch(`${API_BASE}/api/ai/advise`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ question, context }),
+  });
+  handleUnauthorized(res.status);
+  if (!res.ok) throw new Error("AI service unavailable");
+  const data = await res.json();
+  return data.answer;
+}

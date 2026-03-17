@@ -5,8 +5,10 @@ import {
   updatePassword,
   deletePassword,
   PasswordEntry,
+  AIContext,
 } from "../../services/api";
 import { checkAllPasswords } from "../../services/hibp";
+import AIAdvisorPanel from "../../components/AIAdvisorPanel/AIAdvisorPanel";
 import "./AllItems.css";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -68,6 +70,10 @@ function AllItems() {
   const [saving, setSaving] = useState(false);
   const [panelPasswordVisible, setPanelPasswordVisible] = useState(false);
 
+  // AI panel state
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState<AIContext | null>(null);
+
   // Delete confirmation state
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
@@ -125,6 +131,11 @@ function AllItems() {
     setEditingEntry(null);
     setFormData(emptyForm);
     setFormError("");
+  };
+
+  const openAIPanel = (entry: PasswordEntry) => {
+    setAiContext({ appName: entry.appName, url: entry.url, username: entry.username });
+    setAiPanelOpen(true);
   };
 
   const handleFormChange = (field: keyof FormData, value: string) => {
@@ -320,6 +331,15 @@ function AllItems() {
                         Edit
                       </button>
 
+                      {/* ── Ask AI button ── */}
+                      <button
+                        className="action-btn ai-btn"
+                        onClick={() => openAIPanel(entry)}
+                        title="Ask AI"
+                      >
+                        Ask AI
+                      </button>
+
                       {isConfirmingDelete ? (
                         <div className="delete-confirm">
                           <span className="delete-confirm-text">Sure?</span>
@@ -443,6 +463,13 @@ function AllItems() {
           </div>
         </div>
       </div>
+
+      {/* ── AI Advisor Panel ── */}
+      <AIAdvisorPanel
+        open={aiPanelOpen}
+        context={aiContext}
+        onClose={() => setAiPanelOpen(false)}
+      />
 
     </div>
   );
