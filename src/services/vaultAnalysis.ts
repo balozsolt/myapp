@@ -52,7 +52,7 @@ export async function analyzeVault(entries: PasswordEntry[]): Promise<VaultAnaly
   }));
 
   const reusedPasswords: BasicEntry[] = [];
-  for (const group of hashGroups.values()) {
+  for (const group of Array.from(hashGroups.values())) {
     if (group.length > 1) {
       for (const e of group) reusedPasswords.push({ label: e.appName, url: e.url });
     }
