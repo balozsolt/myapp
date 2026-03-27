@@ -13,12 +13,8 @@ const Register: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/auth/status`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.hasAccount) navigate("/login", { replace: true });
-      })
-      .catch(() => {});
+    const token = localStorage.getItem("token");
+    if (token) navigate("/", { replace: true });
   }, [navigate]);
 
   const handleSubmit = async () => {
