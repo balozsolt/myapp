@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Login.css";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const registered = (location.state as { registered?: boolean } | null)?.registered === true;
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -111,6 +113,10 @@ const Login: React.FC = () => {
               </button>
             </div>
           </div>
+
+          {registered && (
+            <div className="auth-success">Account created — please log in.</div>
+          )}
 
           {error && <div className="auth-error">{error}</div>}
 

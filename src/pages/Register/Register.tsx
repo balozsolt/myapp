@@ -64,13 +64,10 @@ const Register: React.FC = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        if (res.status === 409) return navigate("/login", { replace: true });
-        return setError(data.error || "Registration failed.");
+        return setError(data.error || "Registration failed, please try again.");
       }
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("username", data.username);
-      navigate("/", { replace: true });
+      navigate("/login", { replace: true, state: { registered: true } });
     } catch {
       setError("Could not connect to the server.");
     } finally {
