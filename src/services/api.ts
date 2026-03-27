@@ -76,17 +76,13 @@ export async function deletePassword(id: number): Promise<void> {
   if (!res.ok) throw new Error("Failed to delete password");
 }
 
-export interface AIContext {
-  appName: string;
-  url: string;
-  username: string;
-}
+export type { VaultAnalysisSummary } from './vaultAnalysis';
 
-export async function askAI(question: string, context: AIContext): Promise<string> {
+export async function askAI(question: string, vaultAnalysisSummary: import('./vaultAnalysis').VaultAnalysisSummary): Promise<string> {
   const res = await fetch(`${API_BASE}/api/ai/advise`, {
     method: "POST",
     headers: getHeaders(),
-    body: JSON.stringify({ question, context }),
+    body: JSON.stringify({ question, vaultAnalysisSummary }),
   });
   handleUnauthorized(res.status);
   if (!res.ok) throw new Error("AI service unavailable");

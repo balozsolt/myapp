@@ -5,7 +5,6 @@ import {
   updatePassword,
   deletePassword,
   PasswordEntry,
-  AIContext,
 } from "../../services/api";
 import { checkAllPasswords } from "../../services/hibp";
 import AIAdvisorPanel from "../../components/AIAdvisorPanel/AIAdvisorPanel";
@@ -72,7 +71,6 @@ function AllItems() {
 
   // AI panel state
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
-  const [aiContext, setAiContext] = useState<AIContext | null>(null);
 
   // Delete confirmation state
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -133,8 +131,7 @@ function AllItems() {
     setFormError("");
   };
 
-  const openAIPanel = (entry: PasswordEntry) => {
-    setAiContext({ appName: entry.appName, url: entry.url, username: entry.username });
+  const openAIPanel = () => {
     setAiPanelOpen(true);
   };
 
@@ -334,7 +331,7 @@ function AllItems() {
                       {/* ── Ask AI button ── */}
                       <button
                         className="action-btn ai-btn"
-                        onClick={() => openAIPanel(entry)}
+                        onClick={() => openAIPanel()}
                         title="Ask AI"
                       >
                         Ask AI
@@ -467,7 +464,7 @@ function AllItems() {
       {/* ── AI Advisor Panel ── */}
       <AIAdvisorPanel
         open={aiPanelOpen}
-        context={aiContext}
+        entries={entries}
         onClose={() => setAiPanelOpen(false)}
       />
 

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { askAI, AIContext } from "../../services/api";
+import { askAI, PasswordEntry } from "../../services/api";
+import { analyzeVault, VaultAnalysisSummary } from "../../services/vaultAnalysis";
 import "./AIAdvisorPanel.css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -11,19 +12,19 @@ interface Message {
 
 interface Props {
   open: boolean;
-  context: AIContext | null;
+  entries: PasswordEntry[];
   onClose: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-function AIAdvisorPanel({ open, context, onClose }: Props) {
+function AIAdvisorPanel({ open, entries, onClose }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSend = async () => {
-    if (!input.trim() || !context || loading) return;
+    if (!input.trim() || loading) return;
 
     const question = input.trim();
     setInput("");
@@ -31,9 +32,10 @@ function AIAdvisorPanel({ open, context, onClose }: Props) {
     setLoading(true);
 
     try {
-      const answer = await askAI(question, context);
+      const analysis: VaultAnalysisSummary = await analyzeVault(entries);
+      const answer = await askAI(question, analysis);
       setMessages(prev => [...prev, { role: "assistant", text: answer }]);
-    } catch (err) {
+    } catch {
       setMessages(prev => [...prev, { role: "assistant", text: "Sorry, I couldn't get a response. Please try again." }]);
     } finally {
       setLoading(false);
@@ -61,9 +63,7 @@ function AIAdvisorPanel({ open, context, onClose }: Props) {
             <span className="ai-icon">🤖</span>
             <div>
               <h2 className="panel-title">AI Security Advisor</h2>
-              {context && (
-                <span className="ai-context-label">{context.appName}</span>
-              )}
+              <span className="ai-context-label">Vault analysis</span>
             </div>
           </div>
           <button className="panel-close" onClick={handleClose}>✕</button>
@@ -73,16 +73,19 @@ function AIAdvisorPanel({ open, context, onClose }: Props) {
         <div className="ai-messages">
           {messages.length === 0 && (
             <div className="ai-welcome">
-              <p>Ask me anything about the security of this account.</p>
+              <p>Ask me about the security of your entire vault.</p>
               <div className="ai-suggestions">
-                <button className="ai-suggestion" onClick={() => setInput("Is this a high risk service?")}>
-                  Is this a high risk service?
+                <button className="ai-suggestion" onClick={() => setInput("How secure is my vault?")}>
+                  How secure is my vault?
                 </button>
-                <button className="ai-suggestion" onClick={() => setInput("How should I secure this account?")}>
-                  How should I secure this account?
+                <button className="ai-suggestion" onClick={() => setInput("Do I have any breached passwords?")}>
+                  Do I have any breached passwords?
                 </button>
-                <button className="ai-suggestion" onClick={() => setInput("Suggest a strong password for this service")}>
-                  Suggest a strong password
+                <button className="ai-suggestion" onClick={() => setInput("Which passwords should I change first?")}>
+                  Which passwords should I change first?
+                </button>
+                <button className="ai-suggestion" onClick={() => setInput("How old are my passwords?")}>
+                  How old are my passwords?
                 </button>
               </div>
             </div>
@@ -100,7 +103,7 @@ function AIAdvisorPanel({ open, context, onClose }: Props) {
           {loading && (
             <div className="ai-message ai-message-assistant">
               <span className="ai-message-label">AI Advisor</span>
-              <p className="ai-message-text ai-typing">Thinking…</p>
+              <p className="ai-message-text ai-typing">Analyzing vault…</p>
             </div>
           )}
         </div>
